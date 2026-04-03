@@ -2,7 +2,7 @@
 
 Questo repository contiene le interfacce grafiche (Custom Cards) per l'integrazione **Energy Smart PV Climate** di Home Assistant.
 
-⚠️ **ATTENZIONE REQUISITO FONDAMENTALE:** Queste card funzionano *solo* se hai già installato e configurato l'integrazione backend. Se non l'hai ancora fatto, installala da qui: 👉 **[INSERISCI QUI IL LINK AL REPO DEL BACKEND]**
+⚠️ **ATTENZIONE REQUISITO FONDAMENTALE:** Queste card funzionano *solo* se hai già installato e configurato l'integrazione backend. Se non l'hai ancora fatto, installala da qui: 👉 **https://github.com/winniko/energy-smart-pv-climate**
 
 In questo pacchetto troverai due card incluse in un unico file:
 1. **Energy Smart PV Card:** Ideale per controllare e visualizzare i dettagli di una singola zona/split.
