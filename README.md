@@ -9,12 +9,10 @@ In questo pacchetto troverai due card incluse in un unico file:
 2. **Energy Smart PV Unified Card:** Una plancia di comando globale per visualizzare e gestire tutte le tue zone contemporaneamente in un'unica vista compatta.
 
 <div align="center">
-  <img src="Energy Smart PV Card.png" alt="Card Preview" width="300">
-</div>
-
-<div align="center">
+  <img src="Energy Smart PV Card.png" alt="Card Preview" width="282">
   <img src="Energy Smart PV Unified Card.png" alt="Card Preview" width="300">
 </div>
+
 
 ## 📥 Installazione
 
