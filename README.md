@@ -49,3 +49,22 @@ Se preferisci usare l'editor YAML o hai una plancia in modalità codice, ecco co
 type: custom:energy-smart-pv-card
 entities:
   - sensor.soggiorno_status
+
+#### Card Unificata (Tutte le zone):
+
+type: custom:energy-smart-pv-unified-card
+entities:
+  - sensor.soggiorno_status
+  - sensor.camera_status
+  - sensor.studio_status
+```
+
+## ☕ Supporta il Progetto
+
+Ogni piccolo supporto fa un'enorme differenza: mi aiuta a mantenere vivo l'entusiasmo e mi stimola a creare e condividere nuove soluzioni per la community. Grazie di cuore per il tuo aiuto! 🚀
+
+[![PayPal](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.me/winniko)
+
+
+## ❤️ Crediti
+Sviluppato da WinNiko
