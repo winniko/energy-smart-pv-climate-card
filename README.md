@@ -8,8 +8,6 @@ In questo pacchetto troverai due card incluse in un unico file:
 1. **Energy Smart PV Card:** Ideale per controllare e visualizzare i dettagli di una singola zona/split.
 2. **Energy Smart PV Unified Card:** Una plancia di comando globale per visualizzare e gestire tutte le tue zone contemporaneamente in un'unica vista compatta.
 
----
-
 ## 📥 Installazione
 
 ### Metodo 1: Tramite HACS (Consigliato)
@@ -17,7 +15,7 @@ In questo pacchetto troverai due card incluse in un unico file:
 1. Apri **HACS** nel tuo Home Assistant.
 2. Vai nella sezione **Interfaccia** (o "Frontend").
 3. Clicca sui tre puntini in alto a destra e seleziona **Repository personalizzati**.
-4. Incolla l'URL di questo repository: `[INSERISCI QUI L'URL DI QUESTO REPO GITHUB]`
+4. Incolla l'URL di questo repository: `https://github.com/winniko/energy-smart-pv-climate-card`
 5. Scegli come Categoria: **Lovelace**.
 6. Clicca su **Aggiungi**, poi cerca "Energy Smart PV Cards" nella lista e clicca su **Scarica**.
 7. **IMPORTANTE:** HACS dovrebbe chiederti di aggiungere la risorsa alla tua plancia. Se non lo fa in automatico, vai su *Impostazioni > Plance > Risorse* e aggiungi questo URL come *Modulo JavaScript*:
@@ -29,8 +27,6 @@ In questo pacchetto troverai due card incluse in un unico file:
 2. Copia il file all'interno della cartella `config/www/` del tuo Home Assistant (creala se non esiste).
 3. Vai su **Impostazioni > Plance > Risorse** (assicurati di avere la modalità avanzata attiva nel tuo profilo utente).
 4. Clicca su **Aggiungi Risorsa**, inserisci `/local/energy-smart-pv-cards.js` e seleziona **Modulo JavaScript**.
-
----
 
 ## 🛠 Come usare le Card
 
