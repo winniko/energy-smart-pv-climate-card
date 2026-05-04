@@ -384,21 +384,23 @@ class EnergySmartPVCardEditor extends HTMLElement {
     const pickersContainer = document.createElement("div");
     const hasPicker = !!customElements.get("ha-entity-picker");
     entities.forEach((entity, index) => {
-      const row = document.createElement("div"); row.style.cssText = "margin-bottom:8px; display:flex; gap:8px; align-items:center;";
+      const row = document.createElement("div");
+      row.style.cssText = "margin-bottom:8px; display:flex; gap:8px; align-items:center;";
       let field;
-      if (hasPicker) {
-        const picker = document.createElement("ha-entity-picker");
-        picker.style.flex = "1"; picker.hass = this._hass; picker.value = entity; picker.includeDomains = ["sensor"];
-        picker.addEventListener("value-changed", (ev) => this._valueChanged(ev.detail.value, index));
-        field = picker;
-      } else {
-        const input = document.createElement("input");
-        input.type = "text"; input.placeholder = "sensor.living_status"; input.value = entity || "";
-        input.style.cssText = "flex:1; padding:4px 8px;";
-        input.addEventListener("change", (ev) => this._valueChanged(ev.target.value, index));
-        field = input;
-      }
-      const removeBtn = document.createElement("div"); removeBtn.innerText = "X"; removeBtn.style.cssText = "color:red; cursor:pointer; font-weight:bold; padding:0 8px;";
+      
+      const picker = document.createElement("ha-entity-picker");
+      picker.style.flex = "1";
+      picker.hass = this._hass;
+      picker.value = entity;
+      picker.includeDomains = ["sensor"];
+      picker.addEventListener("value-changed", (ev) => {
+        this._valueChanged(ev.detail.value, index);
+      });
+      field = picker;
+
+      const removeBtn = document.createElement("div");
+      removeBtn.innerText = "X";
+      removeBtn.style.cssText = "color:red; cursor:pointer; font-weight:bold; padding:0 8px;";
       removeBtn.onclick = () => this._removeEntity(index);
       row.appendChild(field); row.appendChild(removeBtn); pickersContainer.appendChild(row);
     });
@@ -1075,18 +1077,18 @@ class EnergySmartPVUnifiedCardEditor extends HTMLElement {
       const row = document.createElement("div");
       row.style.cssText = "margin-bottom:8px; display:flex; gap:8px; align-items:center;";
       let field;
-      if (hasPicker) {
-        const picker = document.createElement("ha-entity-picker");
-        picker.style.flex = "1"; picker.hass = this._hass; picker.value = entity; picker.includeDomains = ["sensor"];
-        picker.addEventListener("value-changed", (ev) => this._valueChanged(ev.detail.value, index));
-        field = picker;
-      } else {
-        const input = document.createElement("input");
-        input.type = "text"; input.placeholder = "sensor.living_status"; input.value = entity || "";
-        input.style.cssText = "flex:1; padding:4px 8px;";
-        input.addEventListener("change", (ev) => this._valueChanged(ev.target.value, index));
-        field = input;
-      }
+      
+      // Utilizziamo l'entity-picker se disponibile (standard in HA moderno)
+      const picker = document.createElement("ha-entity-picker");
+      picker.style.flex = "1";
+      picker.hass = this._hass;
+      picker.value = entity;
+      picker.includeDomains = ["sensor"];
+      picker.addEventListener("value-changed", (ev) => {
+        this._valueChanged(ev.detail.value, index);
+      });
+      field = picker;
+
       const removeBtn = document.createElement("div");
       removeBtn.innerText = "X";
       removeBtn.style.cssText = "color:red; cursor:pointer; font-weight:bold; padding:0 8px;";
