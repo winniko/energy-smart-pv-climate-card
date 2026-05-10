@@ -459,6 +459,18 @@ class EnergySmartPVUnifiedCard extends HTMLElement {
       this.content = document.createElement("div");
       card.appendChild(this.content);
       this.appendChild(card);
+
+      // Fix: dentro popup/dialog su mobile, l'header del popup può coprire
+      // l'inizio della card (si vede "sotto" la scritta Condizionatori).
+      // Aggiungiamo padding-top solo in quel contesto, così nulla viene ritagliato.
+      const inDialog =
+        !!this.closest("ha-dialog") ||
+        !!this.closest("ha-more-info-dialog") ||
+        !!this.closest("hui-dialog") ||
+        !!this.closest("hui-dialog-edit-card");
+      if (inDialog) {
+        card.classList.add("espv-in-dialog");
+      }
     }
     this.updateContent();
   }
@@ -477,6 +489,11 @@ class EnergySmartPVUnifiedCard extends HTMLElement {
         border-radius: 18px;
         background: linear-gradient(135deg, rgba(30,30,47,0.95) 0%, rgba(42,42,64,0.95) 100%);
         box-shadow: 0 8px 32px 0 rgba(0,0,0,0.37);
+        box-sizing: border-box;
+      }
+      /* Fix popup/mobile: evita che la parte alta venga coperta dal titolo del popup */
+      .espv-unified-root.espv-in-dialog {
+        padding-top: 52px;
       }
       .main-header {
         display: flex;
