@@ -171,6 +171,7 @@ class EnergySmartPVCard extends HTMLElement {
         }
       }
       const sharedDehum = attrs.shared_dehumidification === true;
+      const autoWinterThreshold = attrs.auto_winter_threshold;
       let outdoorTemp = null, outdoorHumidity = null;
       if (outdoorSensorId) {
         const o = this._hass.states[outdoorSensorId];
@@ -291,6 +292,20 @@ class EnergySmartPVCard extends HTMLElement {
           </div>
         </div>
         <div class="stats-footer">
+          <div class="stat" style="grid-column: 1 / 4;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+              <div>
+                <div class="label">SOGLIA AUTO-INVERNO</div>
+                <div class="val"><ha-icon icon="mdi:snowflake-thermometer" style="width:14px; margin-right:4px;"></ha-icon>${autoWinterThreshold ?? '--'}°C</div>
+              </div>
+              <div class="val" style="gap:6px;">
+                <button class="mini-btn" data-role="autowin-dec">-</button>
+                <button class="mini-btn" data-role="autowin-inc">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="stats-footer">
           <div class="stat">
             <div class="label">Deumidificazione condivisa</div>
             <div class="val" style="gap:6px;">
@@ -332,6 +347,8 @@ class EnergySmartPVCard extends HTMLElement {
       const sumInc = card.querySelector('[data-role="sum-inc"]');
       const winDec = card.querySelector('[data-role="win-dec"]');
       const winInc = card.querySelector('[data-role="win-inc"]');
+      const autowinDec = card.querySelector('[data-role="autowin-dec"]');
+      const autowinInc = card.querySelector('[data-role="autowin-inc"]');
       const sharedToggle = card.querySelector('[data-role="shared-dehum-toggle"]');
       const winterToggle = card.querySelector('[data-role="winter-dehum-toggle"]');
       const clamp = (val, min, max) => Math.max(min, Math.min(max, val));
@@ -341,6 +358,7 @@ class EnergySmartPVCard extends HTMLElement {
       const callSetThr = (val) => { if (!entryId || !this._hass) return; this._hass.callService("energy_smart_pv", "set_export_threshold", { entry_id: entryId, value: val }); };
       const callSetSum = (val) => { if (!entryId || !this._hass) return; this._hass.callService("energy_smart_pv", "set_summer_temp", { entry_id: entryId, value: val }); };
       const callSetWin = (val) => { if (!entryId || !this._hass) return; this._hass.callService("energy_smart_pv", "set_winter_temp", { entry_id: entryId, value: val }); };
+      const callSetAutoWin = (val) => { if (!entryId || !this._hass) return; this._hass.callService("energy_smart_pv", "set_auto_winter_threshold", { entry_id: entryId, value: val }); };
       
       if (humDec) humDec.addEventListener("click", () => callSetHum(clamp(humThr - 1, 30, 90)));
       if (humInc) humInc.addEventListener("click", () => callSetHum(clamp(humThr + 1, 30, 90)));
@@ -352,6 +370,9 @@ class EnergySmartPVCard extends HTMLElement {
       if (sumInc) sumInc.addEventListener("click", () => callSetSum(clamp(sumTemp + 0.5, 16, 30)));
       if (winDec) winDec.addEventListener("click", () => callSetWin(clamp(winTemp - 0.5, 16, 25)));
       if (winInc) winInc.addEventListener("click", () => callSetWin(clamp(winTemp + 0.5, 16, 25)));
+      const autowinThr = Number(autoWinterThreshold ?? NaN);
+      if (autowinDec) autowinDec.addEventListener("click", () => callSetAutoWin(clamp((Number.isNaN(autowinThr) ? 18 : autowinThr) - 0.5, 10, 25)));
+      if (autowinInc) autowinInc.addEventListener("click", () => callSetAutoWin(clamp((Number.isNaN(autowinThr) ? 18 : autowinThr) + 0.5, 10, 25)));
       if (sharedToggle) sharedToggle.addEventListener("change", (ev) => { if (!entryId || !this._hass) return; this._hass.callService("energy_smart_pv", "set_shared_dehumidification", { entry_id: entryId, value: !!ev.target.checked }); });
       if (winterToggle) winterToggle.addEventListener("change", (ev) => { if (!entryId || !this._hass) return; this._hass.callService("energy_smart_pv", "set_winter_dehumidification", { entry_id: entryId, value: !!ev.target.checked }); });
     });
@@ -439,6 +460,7 @@ class EnergySmartPVUnifiedCard extends HTMLElement {
   constructor() {
     super();
     this._openSettings = new Set();
+    this._globalSettingsOpen = false;
   }
   static getConfigElement() {
     return document.createElement("energy-smart-pv-unified-card-editor");
@@ -497,7 +519,8 @@ class EnergySmartPVUnifiedCard extends HTMLElement {
       }
       .main-header {
         display: flex;
-        justify-content: flex-start;
+        justify-content: space-between;
+        align-items: flex-start;
         padding: 12px 16px 8px 16px;
         color: #fff;
       }
@@ -578,8 +601,9 @@ class EnergySmartPVUnifiedCard extends HTMLElement {
       .zone-status .mode-toggle { text-decoration: underline; cursor: pointer; }
       .zone-devices {
         display: grid;
-        grid-template-columns: 1.3fr 1.3fr 0.9fr;
+        grid-template-columns: 1fr 1fr auto;
         gap: 6px;
+        align-items: stretch; /* Forza tutti i blocchi ad avere la stessa altezza */
       }
       .mini-device {
         display: flex;
@@ -589,6 +613,7 @@ class EnergySmartPVUnifiedCard extends HTMLElement {
         border-radius: 12px;
         background: rgba(10,10,20,0.8);
         color: #fff;
+        box-sizing: border-box;
       }
       .mini-device.active {
         background: radial-gradient(circle at top left, rgba(76,175,80,0.38), rgba(10,10,20,0.9));
@@ -606,6 +631,9 @@ class EnergySmartPVUnifiedCard extends HTMLElement {
       .mini-badge {
         display: flex; align-items: center; justify-content: center;
         border-radius: 12px; background: rgba(12,12,24,0.8); color: #fff; font-size: 16px;
+        padding: 0 12px; /* Diamo un padding orizzontale fisso invece di una colonna fr fissa */
+        min-width: 44px;  /* Dimensione minima per il badge dell'icona */
+        box-sizing: border-box;
       }
       .zone-settings {
         margin-top: 6px;
@@ -640,6 +668,14 @@ class EnergySmartPVUnifiedCard extends HTMLElement {
         padding: 2px 6px;
         cursor: pointer;
       }
+      .global-settings-btn { 
+        width: 32px; height: 32px; border-radius: 999px; display: flex; align-items: center; justify-content: center; 
+        background: rgba(12,12,24,0.7); border: 1px solid rgba(255,255,255,0.18); cursor: pointer; flex-shrink: 0; margin-left: 10px; 
+      } 
+      .global-settings-pane { 
+        margin: 0 12px 12px 12px; padding: 10px; border-radius: 12px; background: rgba(5,5,15,0.9); 
+        display: none; flex-direction: column; gap: 8px; font-size: 12px; color: #fff; 
+      } 
       .clickable { cursor: pointer; }
     `;
     this.appendChild(style);
@@ -694,10 +730,24 @@ class EnergySmartPVUnifiedCard extends HTMLElement {
     let outdoorTemp = null;
     let outdoorHumidity = null;
     let globalAcPower = null;
+    let allEntryIds = new Set();
+    let autoWinterThreshold = null;
 
     entities.forEach((entityId) => {
       const e = this._hass.states[entityId];
       if (!e) return;
+      const attrs = e.attributes || {};
+      const entryId = attrs.entry_id;
+      if (entryId !== undefined && entryId !== null && String(entryId).trim() !== "") {
+        allEntryIds.add(entryId);
+      }
+      if (autoWinterThreshold === null) {
+        const awt = attrs.auto_winter_threshold;
+        if (awt !== undefined && awt !== null) {
+          const awv = Number(awt);
+          if (!Number.isNaN(awv)) autoWinterThreshold = awv;
+        }
+      }
       zones += 1;
       const s = Number(e.attributes?.surplus_power);
       if (!Number.isNaN(s) && globalSurplus === null) globalSurplus = s;
@@ -778,7 +828,51 @@ class EnergySmartPVUnifiedCard extends HTMLElement {
           ${zonesBoosting}/${zones}
         </div>
       </div>
+      <div class="global-settings-btn" data-role="global-settings-btn">
+        <ha-icon icon="mdi:tune"></ha-icon>
+      </div>
     `;
+
+    const globalSettingsPane = document.createElement("div");
+    globalSettingsPane.className = "global-settings-pane";
+    const valoreSoglia = autoWinterThreshold === null ? "--" : autoWinterThreshold.toFixed(1);
+    globalSettingsPane.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center;"> 
+        <div>Soglia Auto-Inverno <div style="font-size:9px; opacity:0.6;">(Passa a caldo sotto questi °C)</div></div> 
+        <div class="zone-settings-value"><span>${valoreSoglia}°C</span> <button class="zone-mini-btn" data-role="g-winthr-dec">-</button> <button class="zone-mini-btn" data-role="g-winthr-inc">+</button></div> 
+      </div> 
+    `;
+    globalSettingsPane.style.display = this._globalSettingsOpen ? "flex" : "none";
+    const globalBtn = header.querySelector('[data-role="global-settings-btn"]');
+    if (globalBtn) {
+      globalBtn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        this._globalSettingsOpen = !this._globalSettingsOpen;
+        globalSettingsPane.style.display = this._globalSettingsOpen ? "flex" : "none";
+      });
+    }
+    const clamp = (val, min, max) => Math.max(min, Math.min(max, val));
+    const baseAwt = autoWinterThreshold === null ? 18 : autoWinterThreshold;
+    const gDec = globalSettingsPane.querySelector('[data-role="g-winthr-dec"]');
+    const gInc = globalSettingsPane.querySelector('[data-role="g-winthr-inc"]');
+    if (gDec) {
+      gDec.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        const value = clamp(baseAwt - 0.5, 10, 25);
+        allEntryIds.forEach((entry_id) => {
+          this._hass.callService("energy_smart_pv", "set_auto_winter_threshold", { entry_id, value });
+        });
+      });
+    }
+    if (gInc) {
+      gInc.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        const value = clamp(baseAwt + 0.5, 10, 25);
+        allEntryIds.forEach((entry_id) => {
+          this._hass.callService("energy_smart_pv", "set_auto_winter_threshold", { entry_id, value });
+        });
+      });
+    }
 
     const rowsContainer = document.createElement("div");
     rowsContainer.className = "rows-container";
@@ -1048,6 +1142,7 @@ class EnergySmartPVUnifiedCard extends HTMLElement {
     });
 
     this.content.appendChild(header);
+    this.content.appendChild(globalSettingsPane);
     this.content.appendChild(rowsContainer);
   }
 
